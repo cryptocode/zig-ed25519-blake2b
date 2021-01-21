@@ -1,0 +1,1 @@
+This is a variation of the Zig standard library implementation of ed25519, using Blake2b as the hash function.
