@@ -204,28 +204,28 @@ pub const Ed25519Blake2b = struct {
 
 test "ed25519 key pair creation" {
     var seed: [32]u8 = undefined;
-    try fmt.hexToBytes(seed[0..], "8052030376d47112be7f73ed7a019293dd12ad910b654455798b4667d73de166");
+    _ = try fmt.hexToBytes(seed[0..], "8052030376d47112be7f73ed7a019293dd12ad910b654455798b4667d73de166");
     const key_pair = try Ed25519Blake2b.KeyPair.create(seed);
     var buf: [256]u8 = undefined;
 
     // Note that pubkey is concatenated to the private key (32 bytes); a lot of libraries do this
-    std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{X}", .{key_pair.secret_key}), "8052030376D47112BE7F73ED7A019293DD12AD910B654455798B4667D73DE1668BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
-    std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{X}", .{key_pair.public_key}), "8BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
+    try std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{s}", .{std.fmt.fmtSliceHexUpper(&key_pair.secret_key)}), "8052030376D47112BE7F73ED7A019293DD12AD910B654455798B4667D73DE1668BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
+    try std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{s}", .{std.fmt.fmtSliceHexUpper(&key_pair.public_key)}), "8BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
 
-    std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{X}", .{key_pair.secret_key}), "8052030376D47112BE7F73ED7A019293DD12AD910B654455798B4667D73DE1668BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
-    std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{X}", .{key_pair.public_key}), "8BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
+    try std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{s}", .{std.fmt.fmtSliceHexUpper(&key_pair.secret_key)}), "8052030376D47112BE7F73ED7A019293DD12AD910B654455798B4667D73DE1668BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
+    try std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{s}", .{std.fmt.fmtSliceHexUpper(&key_pair.public_key)}), "8BAB533F9F9786AD39013BF53CEEFD27691A369C383D0FE571540EFF7367CD1A");
 }
 
 test "ed25519 signature" {
     var seed: [32]u8 = undefined;
-    try fmt.hexToBytes(seed[0..], "8052030376d47112be7f73ed7a019293dd12ad910b654455798b4667d73de166");
+    _ = try fmt.hexToBytes(seed[0..], "8052030376d47112be7f73ed7a019293dd12ad910b654455798b4667d73de166");
     const key_pair = try Ed25519Blake2b.KeyPair.create(seed);
 
     const sig = try Ed25519Blake2b.sign("test", key_pair, null);
     var buf: [128]u8 = undefined;
-    std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{X}", .{sig}), "DC91FB77E0BB1EFC65AC147D0E25C6B0EE87B01CFF21B5A001584DA43C942B7C922DBBB6945DAFE42C722F7E7665241A0B2826F8B91E25FC7A9A541ECDC1C606");
+    try std.testing.expectEqualStrings(try std.fmt.bufPrint(&buf, "{s}", .{std.fmt.fmtSliceHexUpper(&sig)}), "DC91FB77E0BB1EFC65AC147D0E25C6B0EE87B01CFF21B5A001584DA43C942B7C922DBBB6945DAFE42C722F7E7665241A0B2826F8B91E25FC7A9A541ECDC1C606");
     try Ed25519Blake2b.verify(sig, "test", key_pair.public_key);
-    std.testing.expectError(error.InvalidSignature, Ed25519Blake2b.verify(sig, "TEST", key_pair.public_key));
+    try std.testing.expectError(error.InvalidSignature, Ed25519Blake2b.verify(sig, "TEST", key_pair.public_key));
 }
 
 test "ed25519 batch verification" {
@@ -253,6 +253,6 @@ test "ed25519 batch verification" {
         try Ed25519Blake2b.verifyBatch(2, signature_batch);
 
         signature_batch[1].sig = sig1;
-        std.testing.expectError(error.InvalidSignature, Ed25519Blake2b.verifyBatch(signature_batch.len, signature_batch));
+        try std.testing.expectError(error.InvalidSignature, Ed25519Blake2b.verifyBatch(2, signature_batch));
     }
 }
